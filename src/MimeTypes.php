@@ -1026,4 +1026,22 @@ class MimeTypes {
 
         return 'application/octet-stream';
     }
+
+    public static function getCacheControl( string $type, string? $default ) : string {
+        static $mime_types = [
+            // images: 90 days
+            'image/svg+xml' => 'public, max-age=7776000', 
+            'image/jpeg' => 'public, max-age=7776000',
+            'image/png' => 'public, max-age=7776000',
+
+            // js + css: 30 days, must-revalidate
+            'text/css' => 'public, max-age=2592000, must-revalidate', 
+            'application/javascript' => 'public, max-age=2592000, must-revalidate'
+        ];
+
+        if ( array_key_exists( $type, $mime_types ) ) {
+            return $mime_types[ $type ];
+        }
+        return $default;
+    }
 }

@@ -46,12 +46,12 @@ class Deployer {
             'ACL'    => $object_acl === '' ? 'public-read' : $object_acl,
         ];
 
-        $cache_control = Controller::getValue( 's3CacheControl' );
-        if ( $cache_control ) {
-            $put_data['CacheControl'] = $cache_control;
-        }
-
         $base_put_data = $put_data;
+
+        $default_cache_control = Controller::getValue( 's3CacheControl' );
+
+        $s3_remote_path = Controller::getValue( 's3RemotePath' );
+        $s3_prefix = $s3_remote_path ? $s3_remote_path . '/' : '';
 
         $cf_max_paths = Controller::getValue( 'cfMaxPathsToInvalidate' );
         $cf_max_paths = $cf_max_paths ? intval( $cf_max_paths ) : 0;
@@ -79,16 +79,18 @@ class Deployer {
                     continue;
                 }
 
-                $s3_key =
-                    Controller::getValue( 's3RemotePath' ) ?
-                    Controller::getValue( 's3RemotePath' ) . '/' .
-                    ltrim( $cache_key, '/' ) :
-                    ltrim( $cache_key, '/' );
 
                 $mime_type = MimeTypes::guessMimeType( $filename );
                 if ( 'text/' === substr( $mime_type, 0, 5 ) ) {
                     $mime_type = $mime_type . '; charset=UTF-8';
                 }
+
+                $cache_control = MimeTypes::getCacheControl( $mime_type, $default_cache_control );
+                if ( $cache_control ) {
+                    $put_data['CacheControl'] = $cache_control;
+                }
+
+                $s3_key = $s3_prefix . ltrim( $cache_key, '/' );
 
                 $put_data['Key'] = $s3_key;
                 $put_data['ContentType'] = $mime_type;
@@ -136,11 +138,7 @@ class Deployer {
                 $cache_key = $cache_key . 'index.html';
             }
 
-            $s3_key =
-                Controller::getValue( 's3RemotePath' ) ?
-                Controller::getValue( 's3RemotePath' ) . '/' .
-                ltrim( $cache_key, '/' ) :
-                ltrim( $cache_key, '/' );
+            $s3_key = $s3_prefix . ltrim( $cache_key, '/' );
 
             $put_data['Key'] = $s3_key;
             $put_data['WebsiteRedirectLocation'] = $redirect['redirect_to'];
