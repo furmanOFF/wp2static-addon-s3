@@ -1027,7 +1027,7 @@ class MimeTypes {
         return 'application/octet-stream';
     }
 
-    public static function getCacheControl( string $type, string? $default ) : string {
+    public static function getCacheControl( string $type, ?string $default = null ) : string {
         static $mime_types = [
             // images: 90 days
             'image/svg+xml' => 'public, max-age=7776000', 
