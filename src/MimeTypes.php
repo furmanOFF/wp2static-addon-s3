@@ -1028,20 +1028,20 @@ class MimeTypes {
     }
 
     public static function getCacheControl( string $type, ?string $default = null ) : ?string {
-        static $mime_types = [
-            // images: 90 days
-            'image/svg+xml' => 'public, max-age=7776000', 
-            'image/jpeg' => 'public, max-age=7776000',
-            'image/png' => 'public, max-age=7776000',
 
-            // js + css: 30 days, must-revalidate
-            'text/css' => 'public, max-age=2592000, must-revalidate', 
-            'application/javascript' => 'public, max-age=2592000, must-revalidate'
-        ];
-
-        if ( array_key_exists( $type, $mime_types ) ) {
-            return $mime_types[ $type ];
+        if ( str_starts_with ( $type, 'image/' ) ) {
+            return 'public, max-age=7776000'; // 90 days
         }
+
+        if ( str_starts_with ( $type, 'font/' ) ) {
+            return 'public, max-age=7776000'; // 90 days
+        }
+
+        if ( str_starts_with ( $type, 'text/css' ) || 
+             str_starts_with ( $type, 'application/javascript' ) ) {
+            return 'public, max-age=2592000, must-revalidate'; // 30 days, must-revalidate
+        }
+
         return $default;
     }
 }
