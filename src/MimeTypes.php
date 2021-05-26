@@ -1029,10 +1029,12 @@ class MimeTypes {
 
     public static function getCacheControl( string $type, ?string $default = null ) : ?string {
         static $mime_types = [
-            // images + fonts: 90 days
-            'image/' => 'public, max-age=7776000', 
-            'font/' => 'public, max-age=7776000', 
-
+            // images: 1 year
+            'image/' => 'public, max-age=31536000', 
+            // fonts: 1 year
+            'font/' => 'public, max-age=31536000', 
+            // video: 1 year
+            'video/' => 'public, max-age=31536000', 
             // js + css: 30 days, must-revalidate
             'text/css' => 'public, max-age=2592000, must-revalidate', 
             'application/javascript' => 'public, max-age=2592000, must-revalidate'
